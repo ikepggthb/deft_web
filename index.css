@@ -1,0 +1,52 @@
+body {
+    background-color: #0f1a0f;
+}
+
+#othello-board {
+    background-color: black;
+    border-spacing: 2px;
+    /* これにより、セルの間に1pxの間隔（黒い背景）が生じます */
+}
+
+td {
+    width: 40px;
+    height: 40px;
+    background-color: #008000;
+    position: relative;
+}
+
+td.black::after,
+td.white::after {
+    content: "";
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+}
+
+td.black::after {
+    background-color: black;
+}
+
+td.white::after {
+    background-color: white;
+}
+
+td.put-able-place::after {
+    content: "";
+    position: absolute;
+    background-color: white;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+}
+
+#othello-board {
+    margin: auto;
+    width: 80vmin;
+    height: 80vmin;
+}

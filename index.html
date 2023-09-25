@@ -2,25 +2,22 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <!-- https://uragawa.work/ranaextractive/3027/ -->
+        <link rel="stylesheet" href="index.css">
+        
     </head>
     <body>
+
         <button id="testButton" type="button">クリックするとメッセージが表示</button>
 
-        <script type="module">
-            import __wbg_init, { add } from "./deft-reversi-engine/pkg/deft_reversi_engine.js";
-            async function initialize() {
-                await __wbg_init();
-                console.log(add(1,3));
-
-                // ボタンにイベントリスナーを設定
-                document.getElementById('testButton').addEventListener('click', () => {
-                    alert(add(4,3));
-                });
-            }
-            // ページの読み込みが完了した後にinitialize関数を実行
-            window.addEventListener('DOMContentLoaded', (event) => {
-                initialize();
-            });
-        </script>
+        <div id="app">
+            <!-- https://codepen.io/hac-kimagure/details/ZNemda -->
+            <div id="status"></div>
+            <table id="othello-board">
+            </table>
+        </div>
+        <script type="module" src="main.js"></script>
     </body>
+
+
 </html>
