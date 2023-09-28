@@ -3,19 +3,57 @@
     <head>
         <meta charset="UTF-8">
         <!-- https://uragawa.work/ranaextractive/3027/ -->
+        <meta name="viewport" content="width=device-width,initial-scale=1">
         <link rel="stylesheet" href="index.css">
-        
+        <!-- @media screen and (max-width: 959px) {
+            <link rel="stylesheet" href="index.css">
+        }
+        @media screen and (max-width: 480px) {
+            /* 480px以下に適用されるCSS（スマホ用） */
+        } -->
+                
     </head>
     <body>
+        <div id="setup_modal" class="setup">
+            <h2 id="game-title"> Deft Reversi</h2>
+            <div>
+                <h3 class="setting-title">対局設定</h3>
+                <div class="toggle_button setting-element">
+                    <label for="toggle" class="toggle_text" > AIと対戦する</label>
+                    <input id="toggle" class="toggle_input" type='checkbox' checked/>
+                    <label for="toggle" class="toggle_label"></label>
+                </div>
+                <div id="aiSetting">
+                    <div id="first_or_last" class="toggle_button setting-element">
+                        <label id="text_first_or_last" for="toggle_first_or_last" class="toggle_text"> 先攻</label>
+                        <input id="toggle_first_or_last" class="toggle_input" type='checkbox' />
+                        <label id="toggle_label_first_or_last" for="toggle_first_or_last" class="toggle_label"></label>
+                    </div>
+                    <div id="level" class="setting-element">
+                        <label class="">AIのレベル</label>
+                        <select id="selectLevel" class="" name="level">
+                            <option value="1">level 1</option>
+                            <option value="2">level 2</option>
+                            <option value="3">level 3</option>
+                            <option value="4">level 4</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="startButtonP">
+                    <a id="startButton" >Game Start</a>
+                </div>
+            </div>
 
-        <button id="testButton" type="button">クリックするとメッセージが表示</button>
 
-        <div id="app">
-            <!-- https://codepen.io/hac-kimagure/details/ZNemda -->
-            <div id="status"></div>
-            <table id="othello-board">
-            </table>
         </div>
+        <div id="othello-app">
+            <!-- https://codepen.io/hac-kimagure/details/ZNemda -->
+            <div id="ai-thinking-overlay" > </div>
+            <table id="othello-board"></table>
+            <div id="othello-status"></div>
+            
+        </div>
+        
         <script type="module" src="main.js"></script>
     </body>
 

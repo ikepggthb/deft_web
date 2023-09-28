@@ -96,12 +96,63 @@ impl App {
     }
 
     #[wasm_bindgen]
-    pub fn put(&mut self, y: i32, x: i32) {
+    pub fn put(&mut self, y: i32, x: i32) -> bool {
         let mut b = self.bm.current_board();
         let re = b.put_piece_from_coord(y, x);
         if re.is_ok() {
             self.bm.add(b);
+            return true;
         }
+        return false;
+    }
+
+    #[wasm_bindgen]
+    pub fn ai_put(&mut self) {
+
+        let mid_game_ai_level = 10;
+        let end_game_ai_level = 18;
+
+        let mut b = self.bm.current_board();
+        let put_place_mask = {
+            let depth_search = 64 - (b.bit_board[0].count_ones() + b.bit_board[1].count_ones());
+            if depth_search <= end_game_ai_level {
+                end_game_full_solver_nega_alpha_move_ordering(&b)
+            } else {
+                //re_put = put_eval_one_simple(board);
+                // re_put = put_random_piece(board);
+                // re_put = board.put_piece(mid_game_solver_nega_alpha_variation(&board, 8, 2));
+                // re_put = new_eval.put_piece_eval_from_board_pattern(board);
+                //eprintln!("{:0b}", put_mask);
+                mid_game_solver_nega_alpha(&b, mid_game_ai_level)
+            }
+        };
+        let re = b.put_piece(put_place_mask);
+        if re.is_ok() {
+            self.bm.add(b);
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn is_no_put_place(&self) -> bool {
+        let b = self.bm.current_board();
+        b.put_able() == 0
+    }
+
+    #[wasm_bindgen]
+    pub fn is_end_game(&self) -> bool {
+        let mut b = self.bm.current_board();
+        let is_player_cant_put = b.put_able() == 0;
+        b.next_turn ^= 1;
+        let is_opponent_cant_put = b.put_able() == 0;
+        is_player_cant_put && is_opponent_cant_put
+    }
+    #[wasm_bindgen]
+    pub fn pass(&mut self){
+        let mut b = self.bm.current_board();
+        b.next_turn ^= 1;
+        self.bm.undo();
+        self.bm.add(b);
+        console_log!("passed");
     }
 
 }
