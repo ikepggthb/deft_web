@@ -61,6 +61,9 @@ function initializeStyle() {
         setup_modal.style.display = 'none';
         overlay.style.display = "none";
 
+        const level = selectLevel.selectedIndex;
+        app.set_level(level);
+
         enableAI = aiBattleCheckbox.checked;
         if (aiBattleCheckbox.checked) {
             if (toggleFirstOrLast.checked) {

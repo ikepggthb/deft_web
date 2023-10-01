@@ -57,7 +57,8 @@ struct JsBoard {
 
 #[wasm_bindgen]
 pub struct App {
-    bm: BoardManager
+    bm: BoardManager,
+    level: i32
 
 }
 
@@ -66,7 +67,8 @@ impl App {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            bm: BoardManager::new()
+            bm: BoardManager::new(),
+            level: 1
         }
     }
 
@@ -108,25 +110,72 @@ impl App {
 
     #[wasm_bindgen]
     pub fn ai_put(&mut self) {
-
-        let mid_game_ai_level = 10;
-        let end_game_ai_level = 18;
-
         let mut b = self.bm.current_board();
-        let put_place_mask = {
-            let depth_search = 64 - (b.bit_board[0].count_ones() + b.bit_board[1].count_ones());
-            if depth_search <= end_game_ai_level {
-                end_game_full_solver_nega_alpha_move_ordering(&b)
-            } else {
-                //re_put = put_eval_one_simple(board);
-                // re_put = put_random_piece(board);
-                // re_put = board.put_piece(mid_game_solver_nega_alpha_variation(&board, 8, 2));
-                // re_put = new_eval.put_piece_eval_from_board_pattern(board);
-                //eprintln!("{:0b}", put_mask);
-                mid_game_solver_nega_alpha(&b, mid_game_ai_level)
+        let depth_search = 64 - (b.bit_board[0].count_ones() + b.bit_board[1].count_ones());
+        let re;
+        match self.level {
+            0 => {
+                re = put_random_piece(&mut b);
+            },
+            1 => {
+                re = put_eval_one_simple(&mut b);
+            }, 
+            2 => {
+                let mid_game_ai_level = 2;
+                let end_game_ai_level = 4;
+                let put_place_mask = {
+                    if depth_search <= end_game_ai_level {
+                        end_game_full_solver_nega_alpha_move_ordering(&b)
+                    } else {
+                        mid_game_solver_nega_alpha(&b, mid_game_ai_level)
+                    }
+                };
+                re = b.put_piece(put_place_mask);
+            }
+            3 => {
+                let mid_game_ai_level = 4;
+                let end_game_ai_level = 8;
+                let put_place_mask = {
+                    if depth_search <= end_game_ai_level {
+                        console_log!("end game solver start");
+                        end_game_full_solver_nega_alpha_move_ordering(&b)
+                    } else {
+                        mid_game_solver_nega_alpha(&b, mid_game_ai_level)
+                    }
+                };
+                re = b.put_piece(put_place_mask);
+            },
+            4 => {
+                let mid_game_ai_level = 8;
+                let end_game_ai_level = 16;
+                let put_place_mask = {
+                    if depth_search <= end_game_ai_level {
+                        console_log!("end game solver start");
+                        end_game_full_solver_nega_alpha_move_ordering(&b)
+                    } else {
+                        mid_game_solver_nega_alpha_move_ordering(&b, mid_game_ai_level)
+                    }
+                };
+                re = b.put_piece(put_place_mask);
+            },
+            5 => {
+                let mid_game_ai_level = 10;
+                let end_game_ai_level = 22;
+                let put_place_mask = {
+                    if depth_search <= end_game_ai_level {
+                        console_log!("end game solver start");
+                        end_game_full_solver_nega_alpha_move_ordering(&b)
+                    } else {
+                        mid_game_solver_nega_alpha_move_ordering(&b, mid_game_ai_level)
+                    }
+                };
+                re = b.put_piece(put_place_mask);
+            }
+
+            _ => {
+                panic!();
             }
         };
-        let re = b.put_piece(put_place_mask);
         if re.is_ok() {
             self.bm.add(b);
         }
@@ -155,4 +204,8 @@ impl App {
         console_log!("passed");
     }
 
+    pub fn set_level(&mut self, l: i32){
+        self.level = l;
+        console_log!("set {} level", l);
+    }
 }

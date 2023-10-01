@@ -37,7 +37,7 @@ td.white::after {
     width: 90%;
     height: 90%;
     border-radius: 50%;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
 }
 
 td.black::after {
