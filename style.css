@@ -1,6 +1,7 @@
 body {
     /* background-color: #0f1a0f; */
     background-color: black;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 #othello-app {
