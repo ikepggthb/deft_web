@@ -233,7 +233,7 @@ async function handleCellClick(x, y) {
     }
 
     if (app.is_no_put_place()) {
-        alert("pass");
+        alert("パスです。（置ける場所がありません。）");
         app.pass();
         return;
     }
@@ -244,7 +244,7 @@ async function handleCellClick(x, y) {
         while (app.is_no_put_place() && !app.is_end_game()) {
             drawBoardNoOP();
             await repaint();      
-            alert("pass");
+            alert("パスです。（置ける場所がありません。）");
             app.pass();
             app.ai_put();
         }
