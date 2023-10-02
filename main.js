@@ -227,6 +227,11 @@ async function handleCellClick(x, y) {
     drawBoardNoOP();
     await repaint();
 
+    if(app.is_end_game()) {
+        end_game();
+        return;
+    }
+
     if (app.is_no_put_place()) {
         alert("pass");
         app.pass();
@@ -238,11 +243,15 @@ async function handleCellClick(x, y) {
         
         while (app.is_no_put_place() && !app.is_end_game()) {
             drawBoardNoOP();
-            await repaint();        
+            await repaint();      
             alert("pass");
             app.pass();
             app.ai_put();
         }
+        if(app.is_end_game()) {
+            end_game();
+            return;
+        }  
     }
 
 
@@ -252,3 +261,27 @@ const repaint = async () => {
         await new Promise(resolve => requestAnimationFrame(resolve));
     }
 };
+
+function end_game() {
+    let board = app.get_board();
+    let white_count = 0;
+    let black_count = 0;
+    
+    for(let y = 0; y < 8; ++y){
+        for(let x = 0; x < 8; ++x){
+            if (board.board[y][x] == white) {
+                ++white_count;
+            }else if (board.board[y][x] == black) {
+                ++black_count;
+            }
+        }        
+    }
+    if(white_count < black_count) {
+        alert("黒の勝ちです。");
+    } else if (white_count > black_count)  {
+        alert("白の勝ちです。");
+    } else {
+        alert("引き分けです。");
+    }
+    
+}
