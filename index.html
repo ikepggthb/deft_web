@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
     <head>
         <meta charset="UTF-8">
         <!-- https://uragawa.work/ranaextractive/3027/ -->
@@ -11,7 +11,8 @@
         @media screen and (max-width: 480px) {
             /* 480px以下に適用されるCSS（スマホ用） */
         } -->
-                
+        <title>Deft Reversi</title>
+        <link rel="icon" href="favicon.ico">
     </head>
     <body>
         <div id="setup_modal" class="setup">
@@ -52,7 +53,14 @@
             <!-- https://codepen.io/hac-kimagure/details/ZNemda -->
             <div id="ai-thinking-overlay" > </div>
             <table id="othello-board"></table>
-            <div id="othello-status">0 0</div>
+            <div id="othello-status">
+                <progress id="othello-status-prog"></progress>
+                <div id="count">
+                    <label id="black-count">black: </label>
+                    <label id="white-count">white: </label>
+                </div>
+            </div>
+
             
         </div>
         

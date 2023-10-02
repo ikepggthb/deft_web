@@ -73,6 +73,8 @@ function initializeStyle() {
         }
 
     });
+
+
 }
 
 async function initializeOthello() {
@@ -105,8 +107,8 @@ function drawBoard() {
                 td.classList.add('black');
             } else if (board[y][x] === putAblePlace) {
                 td.classList.add('put-able-place');
-                td.addEventListener('click', () => {
-                    clickEvent(x, y);
+                td.addEventListener('click', async () => {
+                    await clickEvent(x, y);
                 });
             }
 
@@ -114,6 +116,8 @@ function drawBoard() {
         }
         cells.appendChild(tr);
     }
+    
+    drawStatus(b); 
 }
 function drawBoardNoOP() {
     let b = app.get_board();
@@ -137,49 +141,114 @@ function drawBoardNoOP() {
         cells.appendChild(tr);
     }
 }
+function drawStatus(board) {
+
+    let white_count = 0;
+    let black_count = 0;
+    
+    for(let y = 0; y < 8; ++y){
+        for(let x = 0; x < 8; ++x){
+            if (board.board[y][x] == white) {
+                ++white_count;
+            }else if (board.board[y][x] == black) {
+                ++black_count;
+            }
+        }        
+    }
+    let next_turn = "";
+    if (board.next_turn == 0) {
+        next_turn = "Black";
+    } else if(board.next_turn == 0) {
+        next_turn = "White";
+    } else {
+        next_turn = board.next_turn;
+    }
+    set_othello_status_prog(white_count + black_count, black_count)
+    let status_html_element = document.getElementById("othello-status-prog");
+    
+    let black_count_html_element = document.getElementById("black-count");
+    black_count_html_element.textContent=`${black_count}`;
+
+    
+    let white_count_html_element = document.getElementById("white-count");
+    white_count_html_element.innerHTML=`${white_count}`;
+    if (white_count >= 10){
+        white_count_html_element.style.width = "6%";
+    }else {
+        white_count_html_element.style.width = "4%";
+    }
 
 
-function clickEvent(x, y) {
+}
+
+async function set_othello_status_prog(max, value) {
+    
+    let status_html_element = document.getElementById("othello-status-prog");
+    // const old_max = status_html_element.max;
+    // const old_value = status_html_element.value;
+    status_html_element.max = max;
+    status_html_element.value = value;
+}
+
+// function clickEvent(x, y) {
+//     const overlay = document.getElementById('ai-thinking-overlay');
+//     drawBoardNoOP();
+//     overlay.style.display = 'block';
+//     requestAnimationFrame(() => {
+//         // 1回目: 現在のフレームの残りのタスクを待つ
+//         requestAnimationFrame(() => {
+//             // 2回目: 次のフレームでの処理
+//             handleCellClick(x, y);
+//             overlay.style.display = 'none';
+//             drawBoard();
+//         });
+//     });
+// }
+
+
+async function clickEvent(x, y) {
     const overlay = document.getElementById('ai-thinking-overlay');
     drawBoardNoOP();
     overlay.style.display = 'block';
-    requestAnimationFrame(() => {
-        // 1回目: 現在のフレームの残りのタスクを待つ
-        requestAnimationFrame(() => {
-            // 2回目: 次のフレームでの処理
-            handleCellClick(x, y);
-            overlay.style.display = 'none';
-            drawBoard();
-        });
-    });
+    await repaint();
+    await handleCellClick(x, y);
+    overlay.style.display = 'none';
+    drawBoard();
 }
 
-function handleCellClick(x, y) {
+
+async function handleCellClick(x, y) {
     console.log(y, x);
     const put_ok = app.put(y, x);
     if (!put_ok) {
         return;
     }
 
+    drawBoardNoOP();
+    await repaint();
+
     if (app.is_no_put_place()) {
         alert("pass");
         app.pass();
-        drawBoardNoOP();
         return;
     }
-    drawBoardNoOP();
-    
+
     if (enableAI) {
         app.ai_put();
-        drawBoardNoOP();
-
+        
         while (app.is_no_put_place() && !app.is_end_game()) {
+            drawBoardNoOP();
+            await repaint();        
             alert("pass");
             app.pass();
             app.ai_put();
-            drawBoardNoOP();
         }
     }
 
 
 }
+const repaint = async () => {
+    for (let i = 0; i < 2; i++) {
+        await new Promise(resolve => requestAnimationFrame(resolve));
+    }
+};
