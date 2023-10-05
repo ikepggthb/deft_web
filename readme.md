@@ -20,6 +20,8 @@ https://az.recazbowl.net/deft_web/
 
 ビルド方法
 
+- Rustと、wasm-packが必要です。
+
 ```
 git clone https://github.com/ikepggthb/deft_web.git
 cd deft_web
