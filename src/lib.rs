@@ -164,9 +164,22 @@ impl App {
                 let put_place_mask = {
                     if depth_search <= end_game_ai_level {
                         console_log!("end game solver start");
-                        end_game_full_solver_nega_alpha_move_ordering(&b)
+                        end_game_full_solver_nega_scout(&b)
                     } else {
-                        mid_game_solver_nega_alpha_move_ordering(&b, mid_game_ai_level)
+                        mid_game_solver_nega_scout(&b, mid_game_ai_level)
+                    }
+                };
+                re = b.put_piece(put_place_mask);
+            },
+            6 => {
+                let mid_game_ai_level = 12;
+                let end_game_ai_level = 22;
+                let put_place_mask = {
+                    if depth_search <= end_game_ai_level {
+                        console_log!("end game solver start");
+                        end_game_full_solver_nega_scout(&b)
+                    } else {
+                        mid_game_solver_nega_scout(&b, mid_game_ai_level)
                     }
                 };
                 re = b.put_piece(put_place_mask);

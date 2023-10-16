@@ -8,6 +8,8 @@ const boardSize = 8;
 const putAblePlace = 3;
 
 let enableAI = false;
+let IsAiWhite = false;
+let AiLevel = 0;
 
 let app = App;
 
@@ -61,12 +63,13 @@ function initializeStyle() {
         setup_modal.style.display = 'none';
         overlay.style.display = "none";
 
-        const level = selectLevel.selectedIndex;
-        app.set_level(level);
+        AiLevel = selectLevel.selectedIndex;
+        app.set_level(AiLevel);
 
         enableAI = aiBattleCheckbox.checked;
-        if (aiBattleCheckbox.checked) {
-            if (toggleFirstOrLast.checked) {
+        IsAiWhite = toggleFirstOrLast.checked;
+        if (enableAI) {
+            if (IsAiWhite) {
                 app.put(4, 5);
                 drawBoard();
             }
@@ -82,65 +85,46 @@ async function initializeOthello() {
     add(1, 3);
 
     app = new App();
-    // document.getElementById('testButton').addEventListener('click', () => {
-    //     alert("pass");
-    //     app.pass()
-    //     drawBoard();
-    // });
+
     drawBoard();
 }
 
-function drawBoard() {
+function drawBoard({ showPutAblePlaces = true } = {}) {
     let b = app.get_board();
     let board = b.board;
     console.log(board);
+
     while (cells.firstChild) {
         cells.removeChild(cells.firstChild);
     }
+
     for (let y = 0; y < boardSize; y++) {
         const tr = document.createElement('tr');
+
         for (let x = 0; x < boardSize; x++) {
             const td = document.createElement('td');
+
             if (board[y][x] === white) {
                 td.classList.add('white');
             } else if (board[y][x] === black) {
                 td.classList.add('black');
-            } else if (board[y][x] === putAblePlace) {
+            } else if (showPutAblePlaces && board[y][x] === putAblePlace) {
                 td.classList.add('put-able-place');
                 td.addEventListener('click', async () => {
                     await clickEvent(x, y);
                 });
+            } else {
+                td.style.pointerEvents = "none";
             }
 
             tr.appendChild(td);
         }
         cells.appendChild(tr);
     }
-    
-    drawStatus(b); 
+    drawStatus(b);
 }
-function drawBoardNoOP() {
-    let b = app.get_board();
-    let board = b.board;
-    console.log(board);
-    while (cells.firstChild) {
-        cells.removeChild(cells.firstChild);
-    }
-    for (let y = 0; y < boardSize; y++) {
-        const tr = document.createElement('tr');
-        for (let x = 0; x < boardSize; x++) {
-            const td = document.createElement('td');
-            td.style.pointerEvents = "none";
-            if (board[y][x] === white) {
-                td.classList.add('white');
-            } else if (board[y][x] === black) {
-                td.classList.add('black');
-            }
-            tr.appendChild(td);
-        }
-        cells.appendChild(tr);
-    }
-}
+
+
 function drawStatus(board) {
 
     let white_count = 0;
@@ -192,7 +176,7 @@ async function set_othello_status_prog(max, value) {
 
 // function clickEvent(x, y) {
 //     const overlay = document.getElementById('ai-thinking-overlay');
-//     drawBoardNoOP();
+//     drawBoard({showPutAblePlaces: false});
 //     overlay.style.display = 'block';
 //     requestAnimationFrame(() => {
 //         // 1回目: 現在のフレームの残りのタスクを待つ
@@ -208,7 +192,7 @@ async function set_othello_status_prog(max, value) {
 
 async function clickEvent(x, y) {
     const overlay = document.getElementById('ai-thinking-overlay');
-    drawBoardNoOP();
+    drawBoard({showPutAblePlaces: false});
     overlay.style.display = 'block';
     await repaint();
     await handleCellClick(x, y);
@@ -224,7 +208,7 @@ async function handleCellClick(x, y) {
         return;
     }
 
-    drawBoardNoOP();
+    drawBoard({showPutAblePlaces: false});
     await repaint();
 
     if(app.is_end_game()) {
@@ -242,7 +226,7 @@ async function handleCellClick(x, y) {
         app.ai_put();
         
         while (app.is_no_put_place() && !app.is_end_game()) {
-            drawBoardNoOP();
+            drawBoard({showPutAblePlaces: false});
             await repaint();      
             alert("パスです。（置ける場所がありません。）");
             app.pass();
@@ -276,12 +260,34 @@ function end_game() {
             }
         }        
     }
-    if(white_count < black_count) {
-        alert("黒の勝ちです。");
-    } else if (white_count > black_count)  {
-        alert("白の勝ちです。");
+
+    let diff = black_count - white_count;
+    let comment = "";
+
+
+    if (enableAI) {
+        if (IsAiWhite) diff = -diff;
+        if (diff > 0) {
+            comment = "あなたの勝ちです。";
+        } else if (diff < 0) {
+            comment = "AIの勝ちです。"
+        } else {
+            comment = "引き分けです。";
+        }
+        comment += `\n(AI: Level ${AiLevel})`;
     } else {
-        alert("引き分けです。");
+        if (diff > 0) {
+            comment = "黒の勝ちです。";
+        } else if (diff < 0)  {
+            comment = "白の勝ちです。";
+        } else {
+            comment = "引き分けです。";
+        }
     }
+
+    if (Math.abs(diff) < 10) {
+        comment += "\n\nGood Game !";
+    }
+    alert(comment);
     
 }
