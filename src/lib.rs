@@ -106,12 +106,12 @@ impl App {
             return true;
         }
         return false;
-    }
+    } 
 
     #[wasm_bindgen]
     pub fn ai_put(&mut self) {
         let mut b = self.bm.current_board();
-        let depth_search = 64 - (b.bit_board[0].count_ones() + b.bit_board[1].count_ones());
+
         let re;
         match self.level {
             0 => {
@@ -123,65 +123,46 @@ impl App {
             2 => {
                 let mid_game_ai_level = 2;
                 let end_game_ai_level = 4;
-                let put_place_mask = {
-                    if depth_search <= end_game_ai_level {
-                        end_game_full_solver_nega_alpha_move_ordering(&b)
-                    } else {
-                        mid_game_solver_nega_alpha(&b, mid_game_ai_level)
-                    }
-                };
+                let put_place_mask = solve_put_place(&b, mid_game_ai_level,end_game_ai_level, end_game_ai_level);
                 re = b.put_piece(put_place_mask);
             }
             3 => {
                 let mid_game_ai_level = 4;
                 let end_game_ai_level = 8;
-                let put_place_mask = {
-                    if depth_search <= end_game_ai_level {
-                        console_log!("end game solver start");
-                        end_game_full_solver_nega_alpha_move_ordering(&b)
-                    } else {
-                        mid_game_solver_nega_alpha(&b, mid_game_ai_level)
-                    }
-                };
+                let put_place_mask = solve_put_place(&b, mid_game_ai_level,end_game_ai_level, end_game_ai_level);
+                if let Ok(put_place_str) = Board::move_bit_to_str(put_place_mask) {
+                    console_log!("{}", put_place_str);
+                }
                 re = b.put_piece(put_place_mask);
             },
             4 => {
                 let mid_game_ai_level = 8;
                 let end_game_ai_level = 16;
-                let put_place_mask = {
-                    if depth_search <= end_game_ai_level {
-                        console_log!("end game solver start");
-                        end_game_full_solver_nega_alpha_move_ordering(&b)
-                    } else {
-                        mid_game_solver_nega_alpha_move_ordering(&b, mid_game_ai_level)
-                    }
-                };
+                let put_place_mask = solve_put_place(&b, mid_game_ai_level,end_game_ai_level, end_game_ai_level);
+                if let Ok(put_place_str) = Board::move_bit_to_str(put_place_mask) {
+                    console_log!("{}", put_place_str);
+                }
                 re = b.put_piece(put_place_mask);
             },
             5 => {
                 let mid_game_ai_level = 10;
-                let end_game_ai_level = 22;
-                let put_place_mask = {
-                    if depth_search <= end_game_ai_level {
-                        console_log!("end game solver start");
-                        end_game_full_solver_nega_scout(&b)
-                    } else {
-                        mid_game_solver_nega_scout(&b, mid_game_ai_level)
-                    }
-                };
+                let winning_game_ai_level = 22;
+                let end_game_ai_level = 20;
+                let put_place_mask = solve_put_place(&b, mid_game_ai_level,winning_game_ai_level, end_game_ai_level);
+                if let Ok(put_place_str) = Board::move_bit_to_str(put_place_mask) {
+                    console_log!("{}", put_place_str);
+                }
                 re = b.put_piece(put_place_mask);
             },
             6 => {
                 let mid_game_ai_level = 12;
+                let winning_game_ai_level = 24;
                 let end_game_ai_level = 22;
-                let put_place_mask = {
-                    if depth_search <= end_game_ai_level {
-                        console_log!("end game solver start");
-                        end_game_full_solver_nega_scout(&b)
-                    } else {
-                        mid_game_solver_nega_scout(&b, mid_game_ai_level)
-                    }
-                };
+                let put_place_mask = solve_put_place(&b, mid_game_ai_level,winning_game_ai_level, end_game_ai_level);
+                
+                if let Ok(put_place_str) = Board::move_bit_to_str(put_place_mask) {
+                    console_log!("{}", put_place_str);
+                }
                 re = b.put_piece(put_place_mask);
             }
 
@@ -219,6 +200,40 @@ impl App {
 
     pub fn set_level(&mut self, l: i32){
         self.level = l;
-        console_log!("set {} level", l);
+        console_log!("set level {}", l);
+    }
+}
+
+fn solve_put_place(b: &Board, mid_game_lv: i32, switch_winning_solver_lv: i32, switch_perfect_solver_lv: i32)
+-> u64
+{
+
+    let num_of_empties = (b.bit_board[0] | b.bit_board[1]).count_zeros() as i32;
+    if num_of_empties <= switch_perfect_solver_lv {
+        console_log!("perfect solver");
+        match perfect_solver(&b, false) {
+            Ok(solve_result) => {
+                console_log!("{}", solve_result.eval);
+                solve_result.best_move
+            },
+            Err(_) => {
+                console_log!("Err: solver is stoped");
+                panic!()
+            }
+        }
+    } else if num_of_empties <= switch_winning_solver_lv {
+        console_log!("winning solver");
+        match winning_solver(&b, false) {
+            Ok(solve_result) => {
+                console_log!("{}", solve_result.eval);
+                solve_result.best_move
+            },
+            Err(_) => {
+                console_log!("Err: solver is stoped");
+                panic!()
+            }
+        }
+    } else {
+        mid_game_solver_nega_scout(&b, mid_game_lv)
     }
 }
