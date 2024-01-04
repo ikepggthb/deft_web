@@ -28,7 +28,6 @@ https://az.recazbowl.net/deft_web/
 git clone https://github.com/ikepggthb/deft_web.git
 cd deft_web
 git clone https://github.com/ikepggthb/deft-reversi-engine.git
-cd ..
 
 cargo install wasm-pack
 wasm-pack build --target web
